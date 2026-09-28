@@ -6,8 +6,8 @@ import { AuthView } from './views/AuthView';
 import { InchargeDashboard } from './views/InchargeDashboard';
 import { TeacherDashboard } from './views/TeacherDashboard';
 import { StudentDashboard } from './views/StudentDashboard';
+import { LibraryView } from './views/LibraryView';
 import {
-  LibraryView,
   QuestionStudioView,
   PapersView,
   TestsView,

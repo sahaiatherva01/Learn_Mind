@@ -174,4 +174,52 @@ export const api = {
       body: JSON.stringify({ section_id: sectionId }),
     });
   },
+
+  // Library & RAG
+  async uploadLibraryFile(file: File, disclaimerAccepted: boolean = true) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('disclaimer_accepted', disclaimerAccepted ? 'true' : 'false');
+
+    const token = localStorage.getItem('learn_mind_token');
+    const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
+
+    const response = await fetch(`${API_BASE}/library/upload`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data?.error?.message || data?.message || 'File upload failed');
+    }
+    return data;
+  },
+
+  async getLibraryFiles() {
+    return request<any[]>('/library/files');
+  },
+
+  async getFileDetails(fileId: string) {
+    return request<any>(`/library/files/${fileId}`);
+  },
+
+  async deleteLibraryFile(fileId: string) {
+    return request<{ message: string }>(`/library/files/${fileId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async searchLibrary(query: string, topK: number = 5, chapter?: string, kind?: string) {
+    let url = `/library/search?query=${encodeURIComponent(query)}&top_k=${topK}`;
+    if (chapter) url += `&chapter=${encodeURIComponent(chapter)}`;
+    if (kind) url += `&kind=${encodeURIComponent(kind)}`;
+    return request<{ query: string; results_count: number; results: any[] }>(url);
+  },
+
+  async getSyllabusTree(board?: string) {
+    const query = board ? `?board=${board}` : '';
+    return request<{ total_nodes: number; tree: any }>(`/library/syllabus${query}`);
+  },
 };

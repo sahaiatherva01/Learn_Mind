@@ -17,3 +17,4 @@ ruff>=0.3.0
 black>=24.2.0
 pyyaml>=6.0
 python-multipart>=0.0.9
+pypdf>=4.1.0

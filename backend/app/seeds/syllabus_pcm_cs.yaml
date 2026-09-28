@@ -1,0 +1,89 @@
+# Seeded Syllabus Tree for ICSE/ISC/JEE/NEET PCM+CS
+- board: "ICSE"
+  class_level: 10
+  subject_name: "Mathematics"
+  chapters:
+    - chapter: "Commercial Mathematics"
+      topics: ["Goods and Services Tax (GST)", "Banking - Recurring Deposit", "Shares and Dividends"]
+    - chapter: "Algebra"
+      topics: ["Linear Inequations", "Quadratic Equations", "Factorisation (Remainder & Factor Theorem)", "Matrices", "Arithmetic Progression"]
+    - chapter: "Coordinate Geometry"
+      topics: ["Reflection", "Section and Mid-Point Formula", "Equation of a Line"]
+    - chapter: "Geometry"
+      topics: ["Similarity", "Loci", "Circles - Angle Properties", "Circles - Cyclic Properties", "Tangents and Intersecting Chords", "Constructions"]
+    - chapter: "Mensuration"
+      topics: ["Cylinder, Cone and Sphere", "Surface Area and Volume"]
+    - chapter: "Trigonometry"
+      topics: ["Trigonometrical Identities", "Heights and Distances"]
+    - chapter: "Statistics & Probability"
+      topics: ["Mean, Median, Mode", "Ogive and Quartiles", "Probability"]
+
+- board: "ISC"
+  class_level: 12
+  subject_name: "Mathematics"
+  chapters:
+    - chapter: "Relations and Functions"
+      topics: ["Types of Relations", "Types of Functions (One-one, Onto)", "Binary Operations", "Inverse Trigonometric Functions"]
+    - chapter: "Algebra & Matrices"
+      topics: ["Matrices and Determinants", "Adjoint and Inverse of a Matrix", "System of Linear Equations"]
+    - chapter: "Calculus - Differential"
+      topics: ["Continuity and Differentiability", "Derivatives of Composite Functions", "Rolle's and Lagrange's Mean Value Theorem", "Applications of Derivatives - Tangents & Normals", "Maxima and Minima"]
+    - chapter: "Calculus - Integral"
+      topics: ["Indefinite Integrals", "Integration by Substitution", "Integration by Parts", "Integration by Partial Fractions", "Definite Integrals & Properties", "Area Bounded by Curves"]
+    - chapter: "Differential Equations"
+      topics: ["Order and Degree", "Variable Separable Method", "Homogeneous Differential Equations", "Linear Differential Equations"]
+    - chapter: "Vectors and 3D Geometry"
+      topics: ["Dot and Cross Product of Vectors", "Direction Cosines and Ratios", "Straight Line in Space", "Plane in 3D"]
+    - chapter: "Probability"
+      topics: ["Conditional Probability", "Bayes' Theorem", "Probability Distribution of Random Variables", "Binomial Distribution"]
+
+- board: "ISC"
+  class_level: 12
+  subject_name: "Physics"
+  chapters:
+    - chapter: "Electrostatics"
+      topics: ["Coulomb's Law and Electric Field", "Gauss's Law and Applications", "Electric Potential and Potential Energy", "Capacitors and Capacitance", "Dielectrics and Energy Stored"]
+    - chapter: "Current Electricity"
+      topics: ["Ohm's Law and Drift Velocity", "Resistivity and Temperature Dependence", "Kirchhoff's Laws and Wheatstone Bridge", "Potentiometer and Meter Bridge"]
+    - chapter: "Magnetic Effects of Current & Magnetism"
+      topics: ["Biot-Savart Law and Ampere's Law", "Force on Moving Charges and Cyclotron", "Torque on Current Loop and Galvanometer", "Earth's Magnetic Field and Magnetic Materials"]
+    - chapter: "Electromagnetic Induction & AC"
+      topics: ["Faraday's Laws and Lenz's Law", "Self and Mutual Inductance", "Alternating Currents, Peak and RMS Value", "LCR Series Circuit, Resonance, Quality Factor", "Transformers and AC Generator"]
+    - chapter: "Optics"
+      topics: ["Refraction at Spherical Surfaces and Lens Maker's Formula", "Prism Dispersion", "Optical Instruments (Microscope, Telescope)", "Wavefront and Huygens' Principle", "Young's Double Slit Experiment (Interference)", "Diffraction and Polarisation"]
+    - chapter: "Modern Physics"
+      topics: ["Photoelectric Effect and Einstein's Equation", "Bohr's Atomic Model and Hydrogen Spectrum", "Nuclear Binding Energy and Fission/Fusion", "Semiconductor Diodes (p-n junction)", "Rectifiers and Logic Gates"]
+
+- board: "ISC"
+  class_level: 12
+  subject_name: "Chemistry"
+  chapters:
+    - chapter: "Solid State & Solutions"
+      topics: ["Colligative Properties and Raoult's Law", "Depression in Freezing Point & Elevation in Boiling Point", "Van't Hoff Factor and Abnormal Molar Masses"]
+    - chapter: "Electrochemistry"
+      topics: ["Galvanic Cells and Nernst Equation", "Kohlrausch's Law and Conductance", "Electrolysis and Faraday's Laws"]
+    - chapter: "Chemical Kinetics"
+      topics: ["Rate of Reaction and Order/Molecularity", "Integrated Rate Equations (Zero and First Order)", "Arrhenius Equation and Activation Energy"]
+    - chapter: "Inorganic - d and f Block & Coordination Compounds"
+      topics: ["Transition Elements Properties", "Coordination Nomenclature & Isomerism", "Werner's Theory and Valence Bond Theory", "Crystal Field Theory (CFT)"]
+    - chapter: "Organic - Haloalkanes & Haloarenes"
+      topics: ["Nomenclature and SN1/SN2 Mechanisms", "Reactions of Grignard Reagents", "Electrophilic Substitution in Haloarenes"]
+    - chapter: "Organic - Alcohols, Phenols & Ethers"
+      topics: ["Preparation and Acidity of Phenols", "Esterification and Dehydration", "Williamson Ether Synthesis", "Reaction Chains & Conversions"]
+    - chapter: "Organic - Aldehydes, Ketones & Carboxylic Acids"
+      topics: ["Nucleophilic Addition Mechanisms", "Aldol Condensation and Cannizzaro Reaction", "Hell-Volhard-Zelinsky (HVZ) Reaction", "Multi-Step Reaction Chains (A->B->C->D)"]
+    - chapter: "Biomolecules"
+      topics: ["Carbohydrates - Structure of Glucose and Fructose", "Proteins - Amino Acids and Peptide Bonds", "Nucleic Acids (DNA and RNA)"]
+
+- board: "ISC"
+  class_level: 12
+  subject_name: "Computer Science"
+  chapters:
+    - chapter: "Boolean Algebra"
+      topics: ["Propositional Logic and Truth Tables", "De Morgan's Laws and Boolean Laws", "Karnaugh Maps (K-Maps: 3 & 4 variables)", "Logic Circuits (Half/Full Adder, Encoders, Multiplexers)"]
+    - chapter: "Object-Oriented Programming (Java)"
+      topics: ["Classes, Objects, and Encapsulation", "Constructors and Parameter Passing", "Method Overloading and Method Overriding", "Inheritance and Polymorphism", "Abstract Classes and Interfaces"]
+    - chapter: "Data Structures"
+      topics: ["Arrays (1D and 2D Matrix Operations)", "Strings and Character Array Operations", "Stack Implementation (Array & Linked)", "Queue & Circular Queue Implementation", "Binary Trees & Tree Traversals (Inorder, Preorder, Postorder)"]
+    - chapter: "Recursion & Algorithms"
+      topics: ["Recursive Functions and Base Cases", "Linear and Binary Search", "Bubble Sort, Selection Sort, Insertion Sort", "Complexity & Big-O Notation"]
