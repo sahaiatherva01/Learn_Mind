@@ -21,7 +21,7 @@ os.environ["DEBUG"] = "False"
 
 from app.db.base import Base
 from app.db.session import get_db
-from app.main import app
+from app.main import app as fastapi_app
 import app.db.models  # noqa
 
 
@@ -60,10 +60,10 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     async def override_get_db():
         yield db_session
 
-    app.dependency_overrides[get_db] = override_get_db
+    fastapi_app.dependency_overrides[get_db] = override_get_db
 
-    transport = ASGITransport(app=app)
+    transport = ASGITransport(app=fastapi_app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
 
-    app.dependency_overrides.clear()
+    fastapi_app.dependency_overrides.clear()

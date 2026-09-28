@@ -1,12 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 import enum
-from passlib.context import CryptContext
+import bcrypt
 from jose import jwt, JWTError
 from app.core.config import settings
 from app.core.errors import UnauthorizedError
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class UserRole(str, enum.Enum):
@@ -39,11 +37,19 @@ class EnrollmentStatus(str, enum.Enum):
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     if not hashed_password:
         return False
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        # bcrypt requires bytes, truncate to 72 chars if needed
+        pw_bytes = plain_password.encode("utf-8")[:72]
+        hash_bytes = hashed_password.encode("utf-8")
+        return bcrypt.checkpw(pw_bytes, hash_bytes)
+    except Exception:
+        return False
 
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    pw_bytes = password.encode("utf-8")[:72]
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(pw_bytes, salt).decode("utf-8")
 
 
 def create_access_token(
