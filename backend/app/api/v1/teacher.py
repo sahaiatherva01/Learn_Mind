@@ -1,28 +1,29 @@
-from typing import List, Optional
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, status
+
+from fastapi import APIRouter, Depends
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from app.db.session import get_db
+
+from app.core.dependencies import require_class_teacher, require_teacher
+from app.core.errors import ForbiddenError, NotFoundError
+from app.core.security import (
+    EnrollmentStatus,
+    UserRole,
+)
 from app.db.models import (
-    User,
-    Section,
-    Subject,
-    TeacherAssignment,
-    StudentEnrollment,
     FileRecord,
     Question,
+    Section,
+    StudentEnrollment,
+    Subject,
+    TeacherAssignment,
+    User,
 )
+from app.db.session import get_db
 from app.schemas import (
     StudentEnrollmentResponse,
     TeacherAssignmentResponse,
 )
-from app.core.security import (
-    UserRole,
-    EnrollmentStatus,
-)
-from app.core.errors import NotFoundError, ForbiddenError
-from app.core.dependencies import require_teacher, require_class_teacher
 
 router = APIRouter(prefix="/teacher", tags=["Teacher"])
 
@@ -44,15 +45,17 @@ async def get_teacher_dashboard(
     section_ids = set()
     for assign, sec, subj in assign_res.all():
         section_ids.add(sec.id)
-        assignments.append({
-            "id": assign.id,
-            "section_id": sec.id,
-            "section_name": sec.section_name,
-            "class_level": sec.class_level,
-            "subject_id": subj.id,
-            "subject_name": subj.name,
-            "subject_code": subj.code,
-        })
+        assignments.append(
+            {
+                "id": assign.id,
+                "section_id": sec.id,
+                "section_name": sec.section_name,
+                "class_level": sec.class_level,
+                "subject_id": subj.id,
+                "subject_name": subj.name,
+                "subject_code": subj.code,
+            }
+        )
 
     # 2. Check if class teacher of any sections
     class_sec_stmt = select(Section).where(Section.class_teacher_id == current_user.id)
@@ -63,33 +66,45 @@ async def get_teacher_dashboard(
     # 3. Count pending student enrollments for class teacher's sections
     pending_enrollments_count = 0
     if class_section_ids:
-        pending_enrollments_count = await db.scalar(
-            select(func.count(StudentEnrollment.id)).where(
-                StudentEnrollment.section_id.in_(class_section_ids),
-                StudentEnrollment.status == EnrollmentStatus.PENDING_APPROVAL.value,
+        pending_enrollments_count = (
+            await db.scalar(
+                select(func.count(StudentEnrollment.id)).where(
+                    StudentEnrollment.section_id.in_(class_section_ids),
+                    StudentEnrollment.status == EnrollmentStatus.PENDING_APPROVAL.value,
+                )
             )
-        ) or 0
+            or 0
+        )
 
     # 4. Count enrolled students across assigned sections
     all_monitored_sections = list(section_ids.union(set(class_section_ids)))
     student_count = 0
     if all_monitored_sections:
-        student_count = await db.scalar(
-            select(func.count(StudentEnrollment.id)).where(
-                StudentEnrollment.section_id.in_(all_monitored_sections),
-                StudentEnrollment.status == EnrollmentStatus.APPROVED.value,
+        student_count = (
+            await db.scalar(
+                select(func.count(StudentEnrollment.id)).where(
+                    StudentEnrollment.section_id.in_(all_monitored_sections),
+                    StudentEnrollment.status == EnrollmentStatus.APPROVED.value,
+                )
             )
-        ) or 0
+            or 0
+        )
 
     # 5. Teacher's private library files count
-    library_files_count = await db.scalar(
-        select(func.count(FileRecord.id)).where(FileRecord.teacher_id == current_user.id)
-    ) or 0
+    library_files_count = (
+        await db.scalar(
+            select(func.count(FileRecord.id)).where(FileRecord.teacher_id == current_user.id)
+        )
+        or 0
+    )
 
     # 6. Teacher's authored/saved questions count
-    questions_count = await db.scalar(
-        select(func.count(Question.id)).where(Question.owner_teacher_id == current_user.id)
-    ) or 0
+    questions_count = (
+        await db.scalar(
+            select(func.count(Question.id)).where(Question.owner_teacher_id == current_user.id)
+        )
+        or 0
+    )
 
     return {
         "teacher": {
@@ -118,7 +133,7 @@ async def get_teacher_dashboard(
     }
 
 
-@router.get("/assignments", response_model=List[TeacherAssignmentResponse])
+@router.get("/assignments", response_model=list[TeacherAssignmentResponse])
 async def get_teacher_assignments(
     current_user: User = Depends(require_teacher),
     db: AsyncSession = Depends(get_db),
@@ -150,7 +165,7 @@ async def get_teacher_assignments(
 
 @router.get("/students")
 async def list_students_roster(
-    section_id: Optional[str] = None,
+    section_id: str | None = None,
     current_user: User = Depends(require_teacher),
     db: AsyncSession = Depends(get_db),
 ):
@@ -173,25 +188,29 @@ async def list_students_roster(
 
     students = []
     for user, enrollment, section in rows:
-        students.append({
-            "id": user.id,
-            "full_name": user.full_name,
-            "email": user.email,
-            "roll_number": user.roll_number,
-            "school_code": user.school_code,
-            "section": {
-                "id": section.id,
-                "section_name": section.section_name,
-                "class_level": section.class_level,
-                "enrollment_status": enrollment.status if enrollment else None,
+        students.append(
+            {
+                "id": user.id,
+                "full_name": user.full_name,
+                "email": user.email,
+                "roll_number": user.roll_number,
+                "school_code": user.school_code,
+                "section": (
+                    {
+                        "id": section.id,
+                        "section_name": section.section_name,
+                        "class_level": section.class_level,
+                        "enrollment_status": enrollment.status if enrollment else None,
+                    }
+                    if section
+                    else None
+                ),
             }
-            if section
-            else None,
-        })
+        )
     return students
 
 
-@router.get("/enrollments", response_model=List[StudentEnrollmentResponse])
+@router.get("/enrollments", response_model=list[StudentEnrollmentResponse])
 async def list_class_teacher_enrollments(
     current_user: User = Depends(require_class_teacher),
     db: AsyncSession = Depends(get_db),
@@ -263,7 +282,9 @@ async def class_teacher_approve_enrollment(
     # Check permission: must be incharge/admin OR the designated class teacher of this section
     if current_user.role not in [UserRole.ADMIN.value, UserRole.INCHARGE.value]:
         if section.class_teacher_id != current_user.id:
-            raise ForbiddenError("Only the Class Teacher of this section or an Incharge can approve this enrollment")
+            raise ForbiddenError(
+                "Only the Class Teacher of this section or an Incharge can approve this enrollment"
+            )
 
     enrollment.status = EnrollmentStatus.APPROVED.value
     enrollment.approved_by_id = current_user.id
@@ -308,7 +329,9 @@ async def class_teacher_reject_enrollment(
 
     if current_user.role not in [UserRole.ADMIN.value, UserRole.INCHARGE.value]:
         if section.class_teacher_id != current_user.id:
-            raise ForbiddenError("Only the Class Teacher of this section or an Incharge can reject this enrollment")
+            raise ForbiddenError(
+                "Only the Class Teacher of this section or an Incharge can reject this enrollment"
+            )
 
     enrollment.status = EnrollmentStatus.REJECTED.value
     enrollment.approved_by_id = current_user.id

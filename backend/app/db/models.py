@@ -1,19 +1,20 @@
 import uuid
 from datetime import datetime, timezone
-from typing import Optional, List, Any
+from typing import Any, Optional
+
 from sqlalchemy import (
-    String,
-    Integer,
+    JSON,
     Boolean,
     DateTime,
-    Text,
-    ForeignKey,
-    JSON,
     Float,
-    Index,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
     UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.db.base import Base
 
 
@@ -33,28 +34,28 @@ class School(Base):
     code: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
     board: Mapped[str] = mapped_column(String(50), default="ICSE_ISC")
     status: Mapped[str] = mapped_column(String(50), default="PENDING_APPROVAL", index=True)
-    approved_by_admin_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
+    approved_by_admin_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=now_utc, onupdate=now_utc
     )
 
-    users: Mapped[List["User"]] = relationship("User", back_populates="school")
-    sections: Mapped[List["Section"]] = relationship("Section", back_populates="school")
-    subjects: Mapped[List["Subject"]] = relationship("Subject", back_populates="school")
+    users: Mapped[list["User"]] = relationship("User", back_populates="school")
+    sections: Mapped[list["Section"]] = relationship("Section", back_populates="school")
+    subjects: Mapped[list["Subject"]] = relationship("Subject", back_populates="school")
 
 
 class User(Base):
     __tablename__ = "users"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
-    school_id: Mapped[Optional[str]] = mapped_column(
+    school_id: Mapped[str | None] = mapped_column(
         String(36), ForeignKey("schools.id", ondelete="CASCADE"), nullable=True, index=True
     )
-    email: Mapped[Optional[str]] = mapped_column(String(255), unique=True, index=True, nullable=True)
-    roll_number: Mapped[Optional[str]] = mapped_column(String(50), index=True, nullable=True)
-    school_code: Mapped[Optional[str]] = mapped_column(String(50), index=True, nullable=True)
-    teacher_code: Mapped[Optional[str]] = mapped_column(String(50), index=True, nullable=True)
+    email: Mapped[str | None] = mapped_column(String(255), unique=True, index=True, nullable=True)
+    roll_number: Mapped[str | None] = mapped_column(String(50), index=True, nullable=True)
+    school_code: Mapped[str | None] = mapped_column(String(50), index=True, nullable=True)
+    teacher_code: Mapped[str | None] = mapped_column(String(50), index=True, nullable=True)
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
@@ -68,10 +69,10 @@ class User(Base):
     incharge_profile: Mapped[Optional["Incharge"]] = relationship(
         "Incharge", back_populates="user", uselist=False
     )
-    teacher_assignments: Mapped[List["TeacherAssignment"]] = relationship(
+    teacher_assignments: Mapped[list["TeacherAssignment"]] = relationship(
         "TeacherAssignment", back_populates="teacher"
     )
-    student_enrollments: Mapped[List["StudentEnrollment"]] = relationship(
+    student_enrollments: Mapped[list["StudentEnrollment"]] = relationship(
         "StudentEnrollment",
         foreign_keys="StudentEnrollment.student_id",
         back_populates="student",
@@ -105,16 +106,16 @@ class Section(Base):
     )
     class_level: Mapped[int] = mapped_column(Integer, nullable=False)  # 6 to 12
     section_name: Mapped[str] = mapped_column(String(50), nullable=False)  # e.g., "10-A"
-    class_teacher_id: Mapped[Optional[str]] = mapped_column(
+    class_teacher_id: Mapped[str | None] = mapped_column(
         String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
     school: Mapped["School"] = relationship("School", back_populates="sections")
-    teacher_assignments: Mapped[List["TeacherAssignment"]] = relationship(
+    teacher_assignments: Mapped[list["TeacherAssignment"]] = relationship(
         "TeacherAssignment", back_populates="section"
     )
-    enrollments: Mapped[List["StudentEnrollment"]] = relationship(
+    enrollments: Mapped[list["StudentEnrollment"]] = relationship(
         "StudentEnrollment", back_populates="section"
     )
 
@@ -135,13 +136,11 @@ class Subject(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
     school: Mapped["School"] = relationship("School", back_populates="subjects")
-    teacher_assignments: Mapped[List["TeacherAssignment"]] = relationship(
+    teacher_assignments: Mapped[list["TeacherAssignment"]] = relationship(
         "TeacherAssignment", back_populates="subject"
     )
 
-    __table_args__ = (
-        UniqueConstraint("school_id", "code", name="uq_school_subject_code"),
-    )
+    __table_args__ = (UniqueConstraint("school_id", "code", name="uq_school_subject_code"),)
 
 
 class TeacherAssignment(Base):
@@ -164,7 +163,9 @@ class TeacherAssignment(Base):
     subject: Mapped["Subject"] = relationship("Subject", back_populates="teacher_assignments")
 
     __table_args__ = (
-        UniqueConstraint("teacher_id", "section_id", "subject_id", name="uq_teacher_section_subject"),
+        UniqueConstraint(
+            "teacher_id", "section_id", "subject_id", name="uq_teacher_section_subject"
+        ),
     )
 
 
@@ -178,13 +179,13 @@ class StudentEnrollment(Base):
     section_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("sections.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    roll_number: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    roll_number: Mapped[str | None] = mapped_column(String(50), nullable=True)
     status: Mapped[str] = mapped_column(String(50), default="PENDING_APPROVAL", index=True)
-    approved_by_id: Mapped[Optional[str]] = mapped_column(
+    approved_by_id: Mapped[str | None] = mapped_column(
         String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
-    reviewed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     student: Mapped["User"] = relationship(
         "User", foreign_keys=[student_id], back_populates="student_enrollments"
@@ -208,10 +209,10 @@ class FileRecord(Base):
     file_size: Mapped[int] = mapped_column(Integer, default=0)
     status: Mapped[str] = mapped_column(String(50), default="PROCESSING", index=True)
     disclaimer_accepted: Mapped[bool] = mapped_column(Boolean, default=True)
-    meta_json: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    meta_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
-    chunks: Mapped[List["ChunkRecord"]] = relationship("ChunkRecord", back_populates="file")
+    chunks: Mapped[list["ChunkRecord"]] = relationship("ChunkRecord", back_populates="file")
 
 
 class ChunkRecord(Base):
@@ -225,11 +226,11 @@ class ChunkRecord(Base):
         String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     page_number: Mapped[int] = mapped_column(Integer, default=1)
-    chapter: Mapped[Optional[str]] = mapped_column(String(200), nullable=True, index=True)
-    topic: Mapped[Optional[str]] = mapped_column(String(200), nullable=True, index=True)
+    chapter: Mapped[str | None] = mapped_column(String(200), nullable=True, index=True)
+    topic: Mapped[str | None] = mapped_column(String(200), nullable=True, index=True)
     kind: Mapped[str] = mapped_column(String(50), default="theory")  # theory, question, solution
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    embedding_json: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    embedding_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
     file: Mapped["FileRecord"] = relationship("FileRecord", back_populates="chunks")
@@ -255,7 +256,7 @@ class Question(Base):
     short_id: Mapped[str] = mapped_column(String(20), unique=True, index=True, nullable=False)
     long_id: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
     origin: Mapped[str] = mapped_column(String(50), nullable=False)
-    source_ref: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    source_ref: Mapped[str | None] = mapped_column(String(255), nullable=True)
     owner_teacher_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
@@ -268,7 +269,7 @@ class Question(Base):
         DateTime(timezone=True), default=now_utc, onupdate=now_utc
     )
 
-    versions: Mapped[List["QuestionVersion"]] = relationship(
+    versions: Mapped[list["QuestionVersion"]] = relationship(
         "QuestionVersion", back_populates="question"
     )
 
@@ -282,22 +283,20 @@ class QuestionVersion(Base):
     )
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     body: Mapped[str] = mapped_column(Text, nullable=False)
-    options_json: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    options_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     answer: Mapped[str] = mapped_column(Text, nullable=False)
-    solution: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    meta_json: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    solution: Mapped[str | None] = mapped_column(Text, nullable=True)
+    meta_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     verification_status: Mapped[str] = mapped_column(String(50), default="UNVERIFIED", index=True)
     created_by_id: Mapped[str] = mapped_column(String(36), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
     question: Mapped["Question"] = relationship("Question", back_populates="versions")
-    verification_runs: Mapped[List["VerificationRun"]] = relationship(
+    verification_runs: Mapped[list["VerificationRun"]] = relationship(
         "VerificationRun", back_populates="question_version"
     )
 
-    __table_args__ = (
-        UniqueConstraint("qid", "version", name="uq_qid_version"),
-    )
+    __table_args__ = (UniqueConstraint("qid", "version", name="uq_qid_version"),)
 
 
 class VerificationRun(Base):
@@ -307,14 +306,17 @@ class VerificationRun(Base):
     qid: Mapped[str] = mapped_column(String(36), nullable=False, index=True)
     version: Mapped[int] = mapped_column(Integer, nullable=False)
     question_version_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("question_versions.id", ondelete="CASCADE"), nullable=False, index=True
+        String(36),
+        ForeignKey("question_versions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     run_no: Mapped[int] = mapped_column(Integer, default=1)
     solver_model: Mapped[str] = mapped_column(String(100))
     answer: Mapped[str] = mapped_column(Text, nullable=False)
-    steps: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    steps: Mapped[str | None] = mapped_column(Text, nullable=True)
     agree: Mapped[bool] = mapped_column(Boolean, default=False)
-    diff_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    diff_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
     question_version: Mapped["QuestionVersion"] = relationship(
@@ -333,10 +335,10 @@ class Paper(Base):
     preset_type: Mapped[str] = mapped_column(String(50))  # Worksheet, Quiz, etc.
     total_marks: Mapped[int] = mapped_column(Integer, default=100)
     duration_minutes: Mapped[int] = mapped_column(Integer, default=60)
-    meta_json: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    meta_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
-    items: Mapped[List["PaperItem"]] = relationship("PaperItem", back_populates="paper")
+    items: Mapped[list["PaperItem"]] = relationship("PaperItem", back_populates="paper")
 
 
 class PaperItem(Base):
@@ -372,7 +374,7 @@ class Test(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
     paper: Mapped["Paper"] = relationship("Paper")
-    attempts: Mapped[List["Attempt"]] = relationship("Attempt", back_populates="test")
+    attempts: Mapped[list["Attempt"]] = relationship("Attempt", back_populates="test")
 
 
 class Attempt(Base):
@@ -386,13 +388,13 @@ class Attempt(Base):
         String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     status: Mapped[str] = mapped_column(String(50), default="IN_PROGRESS", index=True)
-    score: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    score: Mapped[float | None] = mapped_column(Float, nullable=True)
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
-    submitted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     test: Mapped["Test"] = relationship("Test", back_populates="attempts")
-    answers: Mapped[List["AttemptAnswer"]] = relationship("AttemptAnswer", back_populates="attempt")
-    proctor_events: Mapped[List["ProctorEvent"]] = relationship(
+    answers: Mapped[list["AttemptAnswer"]] = relationship("AttemptAnswer", back_populates="attempt")
+    proctor_events: Mapped[list["ProctorEvent"]] = relationship(
         "ProctorEvent", back_populates="attempt"
     )
 
@@ -406,10 +408,10 @@ class AttemptAnswer(Base):
     )
     qid: Mapped[str] = mapped_column(String(36), nullable=False)
     version: Mapped[int] = mapped_column(Integer, default=1)
-    student_answer: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    marks_awarded: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
-    is_correct: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
-    feedback: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    student_answer: Mapped[str | None] = mapped_column(Text, nullable=True)
+    marks_awarded: Mapped[float | None] = mapped_column(Float, nullable=True)
+    is_correct: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    feedback: Mapped[str | None] = mapped_column(Text, nullable=True)
     answered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
     attempt: Mapped["Attempt"] = relationship("Attempt", back_populates="answers")
@@ -423,7 +425,7 @@ class ProctorEvent(Base):
         String(36), ForeignKey("attempts.id", ondelete="CASCADE"), nullable=False, index=True
     )
     event_type: Mapped[str] = mapped_column(String(50), nullable=False)  # TAB_SWITCH, BLUR, etc.
-    event_meta_json: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    event_meta_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
     attempt: Mapped["Attempt"] = relationship("Attempt", back_populates="proctor_events")
@@ -479,7 +481,7 @@ class Collection(Base):
         String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     name: Mapped[str] = mapped_column(String(200), nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
 
@@ -500,8 +502,8 @@ class TopicStat(Base):
     __tablename__ = "topic_stats"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
-    user_id: Mapped[Optional[str]] = mapped_column(String(36), index=True)  # student
-    section_id: Mapped[Optional[str]] = mapped_column(String(36), index=True)  # class level
+    user_id: Mapped[str | None] = mapped_column(String(36), index=True)  # student
+    section_id: Mapped[str | None] = mapped_column(String(36), index=True)  # class level
     subject: Mapped[str] = mapped_column(String(100), index=True)
     chapter: Mapped[str] = mapped_column(String(200), index=True)
     topic: Mapped[str] = mapped_column(String(200), index=True)
@@ -517,8 +519,8 @@ class WeakTopic(Base):
     __tablename__ = "weak_topics"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
-    user_id: Mapped[Optional[str]] = mapped_column(String(36), index=True)
-    section_id: Mapped[Optional[str]] = mapped_column(String(36), index=True)
+    user_id: Mapped[str | None] = mapped_column(String(36), index=True)
+    section_id: Mapped[str | None] = mapped_column(String(36), index=True)
     subject: Mapped[str] = mapped_column(String(100))
     chapter: Mapped[str] = mapped_column(String(200))
     topic: Mapped[str] = mapped_column(String(200))
@@ -548,9 +550,9 @@ class JobRecord(Base):
     payload_json: Mapped[Any] = mapped_column(JSON, nullable=False)
     status: Mapped[str] = mapped_column(String(50), default="QUEUED", index=True)
     attempts: Mapped[int] = mapped_column(Integer, default=0)
-    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     run_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc, index=True)
-    locked_by: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    locked_by: Mapped[str | None] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=now_utc, onupdate=now_utc
@@ -561,11 +563,11 @@ class AuditLog(Base):
     __tablename__ = "audit_log"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
-    user_id: Mapped[Optional[str]] = mapped_column(String(36), index=True)
+    user_id: Mapped[str | None] = mapped_column(String(36), index=True)
     action: Mapped[str] = mapped_column(String(100), nullable=False)
     target_type: Mapped[str] = mapped_column(String(100), nullable=False)
-    target_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    details_json: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    target_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    details_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
 

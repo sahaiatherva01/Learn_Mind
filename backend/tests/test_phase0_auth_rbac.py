@@ -20,7 +20,6 @@ async def test_complete_phase0_flow(client: AsyncClient):
     assert school_resp.status_code == 201
     school_data = school_resp.json()
     incharge_token = school_data["access_token"]
-    school_id = school_data["user"]["school_id"]
     incharge_headers = {"Authorization": f"Bearer {incharge_token}"}
 
     # 2. Incharge creates Sections and Subjects
@@ -38,7 +37,6 @@ async def test_complete_phase0_flow(client: AsyncClient):
         headers=incharge_headers,
     )
     assert sec_resp_12.status_code == 201
-    sec_12pcm_id = sec_resp_12.json()["id"]
 
     # Create Subjects
     sub_math = await client.post(
@@ -55,7 +53,6 @@ async def test_complete_phase0_flow(client: AsyncClient):
         headers=incharge_headers,
     )
     assert sub_phys.status_code == 201
-    sub_phys_id = sub_phys.json()["id"]
 
     # 3. Register Teachers (Class Teacher & Subject Teacher)
     t1_resp = await client.post(
@@ -165,7 +162,6 @@ async def test_complete_phase0_flow(client: AsyncClient):
         },
     )
     assert s2_resp.status_code == 201
-    s2_id = s2_resp.json()["user"]["id"]
 
     # Method C: Teacher-issued code
     s3_resp = await client.post(
@@ -211,7 +207,7 @@ async def test_complete_phase0_flow(client: AsyncClient):
     assert len(enrollments) == 3
 
     # Incharge approves s1 enrollment
-    s1_enrollment_id = [e["id"] for e in enrollments if e["student_name"] == "Aarav Patel"][0]
+    s1_enrollment_id = next(e["id"] for e in enrollments if e["student_name"] == "Aarav Patel")
     appr_enr_resp = await client.post(
         f"/api/v1/incharge/enrollments/{s1_enrollment_id}/approve",
         headers=incharge_headers,
@@ -244,7 +240,7 @@ async def test_complete_phase0_flow(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_rbac_security_rules(client: AsyncClient):
     # Register a school and a student
-    school_resp = await client.post(
+    await client.post(
         "/api/v1/auth/register-school",
         json={
             "school_name": "Greenwood Academy",
@@ -255,8 +251,6 @@ async def test_rbac_security_rules(client: AsyncClient):
             "admin_password": "pass-greenwood-123",
         },
     )
-    incharge_token = school_resp.json()["access_token"]
-    incharge_headers = {"Authorization": f"Bearer {incharge_token}"}
 
     student_resp = await client.post(
         "/api/v1/auth/register-student",

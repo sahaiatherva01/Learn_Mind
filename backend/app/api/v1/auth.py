@@ -1,36 +1,43 @@
+import uuid
+
 from fastapi import APIRouter, Depends, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, or_
-from app.db.session import get_db
+
+from app.core.dependencies import get_current_user
+from app.core.errors import (
+    ConflictError,
+    NotFoundError,
+    UnauthorizedError,
+    ValidationError,
+)
+from app.core.security import (
+    EnrollmentStatus,
+    SchoolStatus,
+    UserRole,
+    UserStatus,
+    create_access_token,
+    get_password_hash,
+    verify_password,
+)
 from app.db.models import (
-    User,
-    School,
     Incharge,
+    School,
     Section,
     StudentEnrollment,
-    TeacherAssignment,
     Subject,
+    TeacherAssignment,
+    User,
 )
+from app.db.session import get_db
 from app.schemas import (
-    RegisterSchoolRequest,
-    RegisterTeacherRequest,
-    RegisterStudentRequest,
     LoginRequest,
+    RegisterSchoolRequest,
+    RegisterStudentRequest,
+    RegisterTeacherRequest,
     TokenResponse,
     UserResponse,
 )
-from app.core.security import (
-    get_password_hash,
-    verify_password,
-    create_access_token,
-    UserRole,
-    UserStatus,
-    SchoolStatus,
-    EnrollmentStatus,
-)
-from app.core.errors import ConflictError, NotFoundError, UnauthorizedError, ValidationError
-from app.core.dependencies import get_current_user
-import uuid
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -41,12 +48,16 @@ async def register_school(
     db: AsyncSession = Depends(get_db),
 ):
     # Check if school code exists
-    existing_school = await db.execute(select(School).where(School.code == req.school_code.strip().upper()))
+    existing_school = await db.execute(
+        select(School).where(School.code == req.school_code.strip().upper())
+    )
     if existing_school.scalar_one_or_none():
         raise ConflictError(f"School code '{req.school_code}' already exists")
 
     # Check if admin email exists
-    existing_user = await db.execute(select(User).where(User.email == req.admin_email.strip().lower()))
+    existing_user = await db.execute(
+        select(User).where(User.email == req.admin_email.strip().lower())
+    )
     if existing_user.scalar_one_or_none():
         raise ConflictError(f"Email '{req.admin_email}' is already registered")
 
@@ -123,9 +134,7 @@ async def register_teacher(
     if not school:
         raise NotFoundError(f"School with code '{req.school_code}' not found")
 
-    user_result = await db.execute(
-        select(User).where(User.email == req.email.strip().lower())
-    )
+    user_result = await db.execute(select(User).where(User.email == req.email.strip().lower()))
     if user_result.scalar_one_or_none():
         raise ConflictError(f"Email '{req.email}' is already registered")
 
@@ -197,7 +206,9 @@ async def register_student(
             )
         )
         if existing.scalar_one_or_none():
-            raise ConflictError(f"Roll number '{req.roll_number}' already registered in this school")
+            raise ConflictError(
+                f"Roll number '{req.roll_number}' already registered in this school"
+            )
     else:
         roll_clean = None
 
@@ -403,15 +414,17 @@ async def get_current_user_profile(
         )
         assignments = []
         for assign, sec, subj in assign_res.all():
-            assignments.append({
-                "assignment_id": assign.id,
-                "section_id": sec.id,
-                "section_name": sec.section_name,
-                "class_level": sec.class_level,
-                "subject_id": subj.id,
-                "subject_name": subj.name,
-                "subject_code": subj.code,
-            })
+            assignments.append(
+                {
+                    "assignment_id": assign.id,
+                    "section_id": sec.id,
+                    "section_name": sec.section_name,
+                    "class_level": sec.class_level,
+                    "subject_id": subj.id,
+                    "subject_name": subj.name,
+                    "subject_code": subj.code,
+                }
+            )
         profile_data["assignments"] = assignments
 
     return profile_data

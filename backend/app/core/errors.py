@@ -1,7 +1,8 @@
-from typing import Any, Optional
+from typing import Any
+
 from fastapi import Request, status
-from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 
 class AppException(Exception):
@@ -10,7 +11,7 @@ class AppException(Exception):
         message: str,
         code: str = "INTERNAL_ERROR",
         status_code: int = status.HTTP_400_BAD_REQUEST,
-        details: Optional[Any] = None,
+        details: Any | None = None,
     ):
         super().__init__(message)
         self.message = message
@@ -20,7 +21,7 @@ class AppException(Exception):
 
 
 class NotFoundError(AppException):
-    def __init__(self, message: str = "Resource not found", details: Optional[Any] = None):
+    def __init__(self, message: str = "Resource not found", details: Any | None = None):
         super().__init__(
             message=message,
             code="NOT_FOUND",
@@ -30,7 +31,7 @@ class NotFoundError(AppException):
 
 
 class UnauthorizedError(AppException):
-    def __init__(self, message: str = "Authentication required", details: Optional[Any] = None):
+    def __init__(self, message: str = "Authentication required", details: Any | None = None):
         super().__init__(
             message=message,
             code="UNAUTHORIZED",
@@ -40,7 +41,7 @@ class UnauthorizedError(AppException):
 
 
 class ForbiddenError(AppException):
-    def __init__(self, message: str = "Permission denied", details: Optional[Any] = None):
+    def __init__(self, message: str = "Permission denied", details: Any | None = None):
         super().__init__(
             message=message,
             code="FORBIDDEN",
@@ -50,7 +51,7 @@ class ForbiddenError(AppException):
 
 
 class ConflictError(AppException):
-    def __init__(self, message: str = "Resource conflict", details: Optional[Any] = None):
+    def __init__(self, message: str = "Resource conflict", details: Any | None = None):
         super().__init__(
             message=message,
             code="CONFLICT",
@@ -60,7 +61,7 @@ class ConflictError(AppException):
 
 
 class ValidationError(AppException):
-    def __init__(self, message: str = "Validation failed", details: Optional[Any] = None):
+    def __init__(self, message: str = "Validation failed", details: Any | None = None):
         super().__init__(
             message=message,
             code="VALIDATION_ERROR",

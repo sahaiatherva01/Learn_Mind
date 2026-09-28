@@ -1,5 +1,5 @@
-from typing import Optional, List, Any
 from datetime import datetime
+
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -11,7 +11,7 @@ class RegisterSchoolRequest(BaseModel):
     admin_name: str = Field(..., min_length=2, max_length=255)
     admin_email: EmailStr
     admin_password: str = Field(..., min_length=6)
-    wing_name: Optional[str] = "Main Wing"
+    wing_name: str | None = "Main Wing"
 
 
 class RegisterTeacherRequest(BaseModel):
@@ -26,20 +26,20 @@ class RegisterStudentRequest(BaseModel):
     school_code: str
     full_name: str = Field(..., min_length=2, max_length=255)
     password: str = Field(..., min_length=6)
-    email: Optional[EmailStr] = None
-    roll_number: Optional[str] = None
-    teacher_code: Optional[str] = None
-    section_id: Optional[str] = None
+    email: EmailStr | None = None
+    roll_number: str | None = None
+    teacher_code: str | None = None
+    section_id: str | None = None
 
 
 class LoginRequest(BaseModel):
     # Method 1: email + password
-    email: Optional[EmailStr] = None
+    email: EmailStr | None = None
     # Method 2: roll_number + school_code + password
-    roll_number: Optional[str] = None
-    school_code: Optional[str] = None
+    roll_number: str | None = None
+    school_code: str | None = None
     # Method 3: teacher_code + password
-    teacher_code: Optional[str] = None
+    teacher_code: str | None = None
 
     password: str
 
@@ -52,12 +52,12 @@ class TokenResponse(BaseModel):
 
 class UserResponse(BaseModel):
     id: str
-    school_id: Optional[str] = None
-    school_name: Optional[str] = None
-    email: Optional[str] = None
-    roll_number: Optional[str] = None
-    school_code: Optional[str] = None
-    teacher_code: Optional[str] = None
+    school_id: str | None = None
+    school_name: str | None = None
+    email: str | None = None
+    roll_number: str | None = None
+    school_code: str | None = None
+    teacher_code: str | None = None
     full_name: str
     role: str
     status: str
@@ -67,13 +67,13 @@ class UserResponse(BaseModel):
 class StudentProfileResponse(BaseModel):
     id: str
     full_name: str
-    roll_number: Optional[str] = None
-    school_name: Optional[str] = None
-    school_code: Optional[str] = None
-    section_id: Optional[str] = None
-    section_name: Optional[str] = None
-    class_level: Optional[int] = None
-    enrollment_status: Optional[str] = None
+    roll_number: str | None = None
+    school_name: str | None = None
+    school_code: str | None = None
+    section_id: str | None = None
+    section_name: str | None = None
+    class_level: int | None = None
+    enrollment_status: str | None = None
 
 
 # --- School Schemas ---
@@ -90,7 +90,7 @@ class SchoolResponse(BaseModel):
 class SectionCreateRequest(BaseModel):
     class_level: int = Field(..., ge=6, le=12)
     section_name: str = Field(..., min_length=1, max_length=50)
-    class_teacher_id: Optional[str] = None
+    class_teacher_id: str | None = None
 
 
 class SectionResponse(BaseModel):
@@ -98,8 +98,8 @@ class SectionResponse(BaseModel):
     school_id: str
     class_level: int
     section_name: str
-    class_teacher_id: Optional[str] = None
-    class_teacher_name: Optional[str] = None
+    class_teacher_id: str | None = None
+    class_teacher_name: str | None = None
     created_at: datetime
 
 
@@ -125,12 +125,12 @@ class TeacherAssignmentRequest(BaseModel):
 class TeacherAssignmentResponse(BaseModel):
     id: str
     teacher_id: str
-    teacher_name: Optional[str] = None
+    teacher_name: str | None = None
     section_id: str
-    section_name: Optional[str] = None
-    class_level: Optional[int] = None
+    section_name: str | None = None
+    class_level: int | None = None
     subject_id: str
-    subject_name: Optional[str] = None
+    subject_name: str | None = None
     created_at: datetime
 
 
@@ -138,16 +138,16 @@ class StudentEnrollmentResponse(BaseModel):
     id: str
     student_id: str
     student_name: str
-    student_email: Optional[str] = None
-    roll_number: Optional[str] = None
+    student_email: str | None = None
+    roll_number: str | None = None
     section_id: str
     section_name: str
     class_level: int
     status: str
     requested_at: datetime
-    reviewed_at: Optional[datetime] = None
+    reviewed_at: datetime | None = None
 
 
 class ApprovalActionRequest(BaseModel):
-    role: Optional[str] = None  # e.g., for teacher approval: CLASS_TEACHER or SUBJECT_TEACHER
-    reason: Optional[str] = None
+    role: str | None = None  # e.g., for teacher approval: CLASS_TEACHER or SUBJECT_TEACHER
+    reason: str | None = None

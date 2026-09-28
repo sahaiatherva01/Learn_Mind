@@ -1,9 +1,10 @@
 # Job queue abstraction per ARCH.md §2 and Rules.md G.7
-from typing import Any, Dict, Optional
-from datetime import datetime, timezone
 import uuid
+from datetime import datetime, timezone
+from typing import Any
+
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+
 from app.db.models import JobRecord
 
 
@@ -12,8 +13,8 @@ class JobQueue:
     async def enqueue(
         db: AsyncSession,
         job_type: str,
-        payload: Dict[str, Any],
-        run_at: Optional[datetime] = None,
+        payload: dict[str, Any],
+        run_at: datetime | None = None,
     ) -> JobRecord:
         job = JobRecord(
             id=str(uuid.uuid4()),

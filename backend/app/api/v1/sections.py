@@ -1,29 +1,29 @@
-from typing import List, Optional
+import uuid
+
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.db.session import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.dependencies import get_current_user, require_incharge
+from app.core.errors import ConflictError, NotFoundError
 from app.db.models import (
-    User,
     Section,
     Subject,
     TeacherAssignment,
+    User,
 )
+from app.db.session import get_db
 from app.schemas import (
     SectionCreateRequest,
     SectionResponse,
     TeacherAssignmentRequest,
     TeacherAssignmentResponse,
 )
-from app.core.security import UserRole, UserStatus
-from app.core.errors import NotFoundError, ConflictError, ForbiddenError
-from app.core.dependencies import get_current_user, require_incharge
-import uuid
 
 router = APIRouter(prefix="/sections", tags=["Sections"])
 
 
-@router.get("", response_model=List[SectionResponse])
+@router.get("", response_model=list[SectionResponse])
 async def list_sections(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -111,7 +111,9 @@ async def create_section(
     )
 
 
-@router.post("/assign-teacher", response_model=TeacherAssignmentResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/assign-teacher", response_model=TeacherAssignmentResponse, status_code=status.HTTP_201_CREATED
+)
 async def assign_teacher_to_section(
     req: TeacherAssignmentRequest,
     current_user: User = Depends(require_incharge),

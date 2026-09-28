@@ -1,18 +1,19 @@
-from typing import List
-from fastapi import APIRouter, Depends, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from app.db.session import get_db
-from app.db.models import User, Subject
-from app.schemas import SubjectCreateRequest, SubjectResponse
-from app.core.errors import ConflictError
-from app.core.dependencies import get_current_user, require_incharge
 import uuid
+
+from fastapi import APIRouter, Depends, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.dependencies import get_current_user, require_incharge
+from app.core.errors import ConflictError
+from app.db.models import Subject, User
+from app.db.session import get_db
+from app.schemas import SubjectCreateRequest, SubjectResponse
 
 router = APIRouter(prefix="/subjects", tags=["Subjects"])
 
 
-@router.get("", response_model=List[SubjectResponse])
+@router.get("", response_model=list[SubjectResponse])
 async def list_subjects(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),

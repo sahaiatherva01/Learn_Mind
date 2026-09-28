@@ -1,6 +1,6 @@
 # LLM client interface and stub implementation per ARCH.md §3 and Rules.md D.5, G.3
 import hashlib
-from typing import Optional, Dict, Any
+from typing import Any
 
 
 class LLMClient:
@@ -19,11 +19,11 @@ class LLMClient:
     async def generate(
         self,
         prompt: str,
-        system_prompt: Optional[str] = None,
+        system_prompt: str | None = None,
         model_tier: str = "fast",  # "fast" or "strong"
         temperature: float = 0.2,
         max_tokens: int = 1000,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Base generation method.
         """

@@ -1,8 +1,10 @@
-from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, Optional
 import enum
+from datetime import datetime, timedelta, timezone
+from typing import Any
+
 import bcrypt
-from jose import jwt, JWTError
+from jose import JWTError, jwt
+
 from app.core.config import settings
 from app.core.errors import UnauthorizedError
 
@@ -55,9 +57,9 @@ def get_password_hash(password: str) -> str:
 def create_access_token(
     subject: str,
     role: str,
-    school_id: Optional[str] = None,
-    expires_delta: Optional[timedelta] = None,
-    additional_claims: Optional[Dict[str, Any]] = None,
+    school_id: str | None = None,
+    expires_delta: timedelta | None = None,
+    additional_claims: dict[str, Any] | None = None,
 ) -> str:
     now = datetime.now(timezone.utc)
     if expires_delta:
@@ -65,7 +67,7 @@ def create_access_token(
     else:
         expire = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
-    to_encode: Dict[str, Any] = {
+    to_encode: dict[str, Any] = {
         "sub": str(subject),
         "role": role,
         "school_id": str(school_id) if school_id else None,
@@ -79,11 +81,9 @@ def create_access_token(
     return encoded_jwt
 
 
-def decode_access_token(token: str) -> Dict[str, Any]:
+def decode_access_token(token: str) -> dict[str, Any]:
     try:
-        payload = jwt.decode(
-            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
-        )
+        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
         return payload
     except JWTError as e:
-        raise UnauthorizedError(f"Could not validate credentials: {str(e)}")
+        raise UnauthorizedError(f"Could not validate credentials: {e!s}")

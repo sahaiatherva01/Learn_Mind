@@ -1,36 +1,36 @@
-from typing import List, Optional
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, status
+
+from fastapi import APIRouter, Depends
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from app.db.session import get_db
-from app.db.models import (
-    School,
-    User,
-    Section,
-    Subject,
-    StudentEnrollment,
-    TeacherAssignment,
-)
-from app.schemas import (
-    UserResponse,
-    StudentEnrollmentResponse,
-    ApprovalActionRequest,
-)
+
+from app.core.dependencies import require_incharge
+from app.core.errors import ForbiddenError, NotFoundError
 from app.core.security import (
+    EnrollmentStatus,
     UserRole,
     UserStatus,
-    EnrollmentStatus,
 )
-from app.core.errors import NotFoundError, ValidationError, ForbiddenError
-from app.core.dependencies import require_incharge
+from app.db.models import (
+    School,
+    Section,
+    StudentEnrollment,
+    Subject,
+    User,
+)
+from app.db.session import get_db
+from app.schemas import (
+    ApprovalActionRequest,
+    StudentEnrollmentResponse,
+    UserResponse,
+)
 
 router = APIRouter(prefix="/incharge", tags=["Incharge"])
 
 
-@router.get("/teachers", response_model=List[UserResponse])
+@router.get("/teachers", response_model=list[UserResponse])
 async def list_school_teachers(
-    status_filter: Optional[str] = None,
+    status_filter: str | None = None,
     current_user: User = Depends(require_incharge),
     db: AsyncSession = Depends(get_db),
 ):
@@ -76,7 +76,7 @@ async def list_school_teachers(
 @router.post("/teachers/{teacher_id}/approve", response_model=UserResponse)
 async def approve_teacher(
     teacher_id: str,
-    req: Optional[ApprovalActionRequest] = None,
+    req: ApprovalActionRequest | None = None,
     current_user: User = Depends(require_incharge),
     db: AsyncSession = Depends(get_db),
 ):
@@ -116,7 +116,7 @@ async def approve_teacher(
 @router.post("/teachers/{teacher_id}/reject", response_model=UserResponse)
 async def reject_teacher(
     teacher_id: str,
-    req: Optional[ApprovalActionRequest] = None,
+    req: ApprovalActionRequest | None = None,
     current_user: User = Depends(require_incharge),
     db: AsyncSession = Depends(get_db),
 ):
@@ -149,9 +149,9 @@ async def reject_teacher(
     )
 
 
-@router.get("/enrollments", response_model=List[StudentEnrollmentResponse])
+@router.get("/enrollments", response_model=list[StudentEnrollmentResponse])
 async def list_student_enrollments(
-    status_filter: Optional[str] = None,
+    status_filter: str | None = None,
     current_user: User = Depends(require_incharge),
     db: AsyncSession = Depends(get_db),
 ):

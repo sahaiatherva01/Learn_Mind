@@ -1,12 +1,13 @@
 import asyncio
 import os
 import sys
+from collections.abc import AsyncGenerator
 from pathlib import Path
+
 import pytest
 import pytest_asyncio
-from typing import AsyncGenerator
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 # Add backend directory to sys.path
 backend_dir = Path(__file__).resolve().parents[1]
@@ -19,10 +20,10 @@ os.environ["JWT_SECRET"] = "test-secret-key-min-32-chars-for-testing-only-12345"
 os.environ["ENVIRONMENT"] = "testing"
 os.environ["DEBUG"] = "False"
 
+import app.db.models  # noqa
 from app.db.base import Base
 from app.db.session import get_db
 from app.main import app as fastapi_app
-import app.db.models  # noqa
 
 
 @pytest.fixture(scope="session")

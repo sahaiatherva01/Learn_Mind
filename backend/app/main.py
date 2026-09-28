@@ -1,23 +1,24 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.exceptions import RequestValidationError
 from contextlib import asynccontextmanager
 
+from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.v1.admin import router as admin_router
+from app.api.v1.auth import router as auth_router
+from app.api.v1.incharge import router as incharge_router
+from app.api.v1.sections import router as sections_router
+from app.api.v1.student import router as student_router
+from app.api.v1.subjects import router as subjects_router
+from app.api.v1.teacher import router as teacher_router
 from app.core.config import settings
 from app.core.errors import (
     AppException,
     app_exception_handler,
-    validation_exception_handler,
     generic_exception_handler,
+    validation_exception_handler,
 )
 from app.core.logging import logger
-from app.api.v1.auth import router as auth_router
-from app.api.v1.admin import router as admin_router
-from app.api.v1.incharge import router as incharge_router
-from app.api.v1.teacher import router as teacher_router
-from app.api.v1.student import router as student_router
-from app.api.v1.sections import router as sections_router
-from app.api.v1.subjects import router as subjects_router
 
 
 @asynccontextmanager

@@ -1,21 +1,20 @@
-from typing import List, Optional
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from app.db.session import get_db
-from app.db.models import School, User, Section, Subject
-from app.schemas import SchoolResponse, ApprovalActionRequest
-from app.core.security import SchoolStatus, UserRole, UserStatus
-from app.core.errors import NotFoundError
+
 from app.core.dependencies import require_admin
-import uuid
+from app.core.errors import NotFoundError
+from app.core.security import SchoolStatus, UserRole
+from app.db.models import School, User
+from app.db.session import get_db
+from app.schemas import ApprovalActionRequest, SchoolResponse
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 
-@router.get("/schools", response_model=List[SchoolResponse])
+@router.get("/schools", response_model=list[SchoolResponse])
 async def list_schools(
-    status_filter: Optional[str] = None,
+    status_filter: str | None = None,
     current_user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
@@ -30,7 +29,7 @@ async def list_schools(
 @router.post("/schools/{school_id}/approve", response_model=SchoolResponse)
 async def approve_school(
     school_id: str,
-    req: Optional[ApprovalActionRequest] = None,
+    req: ApprovalActionRequest | None = None,
     current_user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
@@ -49,7 +48,7 @@ async def approve_school(
 @router.post("/schools/{school_id}/reject", response_model=SchoolResponse)
 async def reject_school(
     school_id: str,
-    req: Optional[ApprovalActionRequest] = None,
+    req: ApprovalActionRequest | None = None,
     current_user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):

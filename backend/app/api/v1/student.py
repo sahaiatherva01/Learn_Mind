@@ -1,28 +1,28 @@
-from typing import List, Optional
+import uuid
 from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from app.db.session import get_db
-from app.db.models import (
-    User,
-    School,
-    Section,
-    Subject,
-    TeacherAssignment,
-    StudentEnrollment,
-    Bookmark,
-    Attempt,
-)
-from app.schemas import StudentEnrollmentResponse
+
+from app.core.dependencies import require_student
+from app.core.errors import ConflictError, NotFoundError
 from app.core.security import (
-    UserRole,
     EnrollmentStatus,
 )
-from app.core.errors import NotFoundError, ConflictError, ForbiddenError
-from app.core.dependencies import require_student
-import uuid
+from app.db.models import (
+    Attempt,
+    Bookmark,
+    School,
+    Section,
+    StudentEnrollment,
+    Subject,
+    TeacherAssignment,
+    User,
+)
+from app.db.session import get_db
+from app.schemas import StudentEnrollmentResponse
 
 router = APIRouter(prefix="/student", tags=["Student"])
 
@@ -70,19 +70,20 @@ async def get_student_dashboard(
             )
             subj_res = await db.execute(subj_stmt)
             subjects = [
-                {"id": s.id, "name": s.name, "code": s.code}
-                for s in subj_res.scalars().all()
+                {"id": s.id, "name": s.name, "code": s.code} for s in subj_res.scalars().all()
             ]
 
     # 2. Bookmarks count
-    bookmarks_count = await db.scalar(
-        select(func.count(Bookmark.id)).where(Bookmark.user_id == current_user.id)
-    ) or 0
+    bookmarks_count = (
+        await db.scalar(select(func.count(Bookmark.id)).where(Bookmark.user_id == current_user.id))
+        or 0
+    )
 
     # 3. Tests / attempts summary
-    attempts_count = await db.scalar(
-        select(func.count(Attempt.id)).where(Attempt.student_id == current_user.id)
-    ) or 0
+    attempts_count = (
+        await db.scalar(select(func.count(Attempt.id)).where(Attempt.student_id == current_user.id))
+        or 0
+    )
 
     return {
         "student": {
@@ -104,7 +105,11 @@ async def get_student_dashboard(
     }
 
 
-@router.post("/request-enrollment", response_model=StudentEnrollmentResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/request-enrollment",
+    response_model=StudentEnrollmentResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def request_section_enrollment(
     req: EnrollmentRequestBody,
     current_user: User = Depends(require_student),
@@ -118,9 +123,7 @@ async def request_section_enrollment(
         raise NotFoundError(f"Section {req.section_id} not found")
 
     # Check if student already has a pending or approved enrollment
-    existing_stmt = select(StudentEnrollment).where(
-        StudentEnrollment.student_id == current_user.id
-    )
+    existing_stmt = select(StudentEnrollment).where(StudentEnrollment.student_id == current_user.id)
     existing_res = await db.execute(existing_stmt)
     existing = existing_res.scalar_one_or_none()
 

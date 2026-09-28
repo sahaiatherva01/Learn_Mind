@@ -1,14 +1,16 @@
-from typing import List, Optional, Callable
+from collections.abc import Callable
+
 from fastapi import Depends, Header
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.db.session import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.errors import ForbiddenError, UnauthorizedError
+from app.core.security import UserRole, UserStatus, decode_access_token
 from app.db.models import User
-from app.core.security import decode_access_token, UserRole, UserStatus
-from app.core.errors import UnauthorizedError, ForbiddenError
+from app.db.session import get_db
 
 
-async def get_token_header(authorization: Optional[str] = Header(None)) -> str:
+async def get_token_header(authorization: str | None = Header(None)) -> str:
     if not authorization:
         raise UnauthorizedError("Authorization header missing")
     parts = authorization.split()
@@ -47,11 +49,14 @@ async def get_current_active_user(
     return current_user
 
 
-def require_roles(allowed_roles: List[UserRole]) -> Callable:
+def require_roles(allowed_roles: list[UserRole]) -> Callable:
     async def role_checker(
         current_user: User = Depends(get_current_user),
     ) -> User:
-        if current_user.status != UserStatus.ACTIVE.value and current_user.role != UserRole.ADMIN.value:
+        if (
+            current_user.status != UserStatus.ACTIVE.value
+            and current_user.role != UserRole.ADMIN.value
+        ):
             raise ForbiddenError("Account is pending approval")
 
         if current_user.role not in [r.value for r in allowed_roles]:
@@ -67,10 +72,12 @@ def require_roles(allowed_roles: List[UserRole]) -> Callable:
 require_admin = require_roles([UserRole.ADMIN])
 require_incharge = require_roles([UserRole.ADMIN, UserRole.INCHARGE])
 require_class_teacher = require_roles([UserRole.ADMIN, UserRole.INCHARGE, UserRole.CLASS_TEACHER])
-require_teacher = require_roles([
-    UserRole.ADMIN,
-    UserRole.INCHARGE,
-    UserRole.CLASS_TEACHER,
-    UserRole.SUBJECT_TEACHER,
-])
+require_teacher = require_roles(
+    [
+        UserRole.ADMIN,
+        UserRole.INCHARGE,
+        UserRole.CLASS_TEACHER,
+        UserRole.SUBJECT_TEACHER,
+    ]
+)
 require_student = require_roles([UserRole.STUDENT])
