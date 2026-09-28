@@ -53,3 +53,7 @@ yarn-error.log*
 # DB / SQLite
 *.db
 *.sqlite3
+
+# Uploads
+uploads/
+backend/uploads/
