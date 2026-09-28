@@ -1,0 +1,55 @@
+subject: "Chemistry"
+code: "CHM"
+version: "1.0.0"
+boards: ["ICSE", "ISC", "JEE", "NEET"]
+classes: [9, 10, 11, 12]
+
+question_types:
+  - id: "MCQ"
+    label: "Multiple Choice Question"
+    default_marks: 1
+    options_count: 4
+  - id: "REACTION_CHAIN"
+    label: "Organic Reaction Pathway / Chain"
+    default_marks: 4
+  - id: "NUMERICAL"
+    label: "Physical Chemistry Numerical"
+    default_marks: 3
+    tolerance: 0.01
+  - id: "STRUCTURE_IDENTIFICATION"
+    label: "Compound & Structure Identification"
+    default_marks: 3
+
+verification_rules:
+  engine: "chemical_and_rdkit"
+  reaction_balancing: true
+  smiles_canonicalization: true
+
+chapters:
+  - name: "Organic Chemistry"
+    code: "ORG"
+    topics:
+      - name: "Aldehydes, Ketones and Carboxylic Acids"
+        code: "AKC"
+      - name: "Alcohols, Phenols and Ethers"
+        code: "APE"
+      - name: "Haloalkanes and Haloarenes"
+        code: "HAL"
+      - name: "Organic Compounds Containing Nitrogen"
+        code: "NIT"
+  - name: "Physical Chemistry"
+    code: "PHY"
+    topics:
+      - name: "Electrochemistry"
+        code: "ECH"
+      - name: "Chemical Kinetics"
+        code: "KIN"
+      - name: "Solutions and Colligative Properties"
+        code: "SOL"
+  - name: "Inorganic Chemistry"
+    code: "INO"
+    topics:
+      - name: "Coordination Compounds"
+        code: "CRD"
+      - name: "d and f Block Elements"
+        code: "DFB"

@@ -222,4 +222,146 @@ export const api = {
     const query = board ? `?board=${board}` : '';
     return request<{ total_nodes: number; tree: any }>(`/library/syllabus${query}`);
   },
+
+  // --- Phase 2: Question Studio & Question Bank ---
+  async getSubjectPacks() {
+    return request<any[]>('/studio/subject-packs');
+  },
+
+  async generateDraftQuestion(payload: {
+    subject: string;
+    class_level: number;
+    chapter: string;
+    topic: string;
+    question_type?: string;
+    difficulty?: string;
+    marks?: number;
+    mode?: string;
+    chunk_id?: string | null;
+    mixed_topics?: string | null;
+  }) {
+    return request<any>('/studio/generate', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async saveDraftQuestion(payload: any) {
+    return request<any>('/studio/save-draft', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async interpretQuestionSet(payload: {
+    raw_text: string;
+    board?: string;
+    class_level?: number;
+    subject?: string;
+  }) {
+    return request<any>('/studio/interpret-set', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async confirmImportQuestionSet(payload: {
+    questions: any[];
+    source_ref?: string;
+  }) {
+    return request<any>('/studio/confirm-import-set', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async searchQuestions(params?: {
+    q?: string;
+    subject?: string;
+    class_level?: number;
+    chapter?: string;
+    status?: string;
+    origin?: string;
+    limit?: number;
+    offset?: number;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.q) searchParams.append('q', params.q);
+    if (params?.subject) searchParams.append('subject', params.subject);
+    if (params?.class_level) searchParams.append('class_level', String(params.class_level));
+    if (params?.chapter) searchParams.append('chapter', params.chapter);
+    if (params?.status) searchParams.append('status', params.status);
+    if (params?.origin) searchParams.append('origin', params.origin);
+    if (params?.limit) searchParams.append('limit', String(params.limit));
+    if (params?.offset) searchParams.append('offset', String(params.offset));
+
+    const qs = searchParams.toString() ? `?${searchParams.toString()}` : '';
+    return request<{ total: number; questions: any[] }>(`/questions/search${qs}`);
+  },
+
+  async getQuestionDetail(qid: string, version?: number) {
+    const query = version ? `?v=${version}` : '';
+    return request<any>(`/questions/${qid}${query}`);
+  },
+
+  async createQuestionManual(payload: any) {
+    return request<any>('/questions', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async createQuestionVersion(qid: string, payload: any) {
+    return request<any>(`/questions/${qid}/versions`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async updateQuestionStatus(qid: string, version: number, status: string) {
+    return request<any>(`/questions/${qid}/versions/${version}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  },
+
+  async toggleBookmark(qid: string) {
+    return request<{ bookmarked: boolean; qid: string }>('/questions/bookmark', {
+      method: 'POST',
+      body: JSON.stringify({ qid }),
+    });
+  },
+
+  async listBookmarks() {
+    return request<string[]>('/questions/bookmarks/list');
+  },
+
+  async toggleFavourite(qid: string) {
+    return request<{ favourited: boolean; qid: string }>('/questions/favourite', {
+      method: 'POST',
+      body: JSON.stringify({ qid }),
+    });
+  },
+
+  async addOrUpdateNote(qid: string, note_text: string) {
+    return request<{ qid: string; note_text: string }>('/questions/note', {
+      method: 'POST',
+      body: JSON.stringify({ qid, note_text }),
+    });
+  },
+
+  async createCollection(name: string, description?: string) {
+    return request<{ id: string; name: string }>('/questions/collections', {
+      method: 'POST',
+      body: JSON.stringify({ name, description }),
+    });
+  },
+
+  async addToCollection(collection_id: string, qid: string, version: number = 1) {
+    return request<any>('/questions/collections/items', {
+      method: 'POST',
+      body: JSON.stringify({ collection_id, qid, version }),
+    });
+  },
 };
+

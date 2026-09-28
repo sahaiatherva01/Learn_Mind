@@ -113,6 +113,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
               <span>Question Studio</span>
             </button>
             <button
+              className={`nav-item ${currentTab === 'teacher-bank' ? 'active' : ''}`}
+              onClick={() => onSelectTab('teacher-bank')}
+              style={{ width: '100%', border: 'none', background: 'none', textAlign: 'left' }}
+            >
+              <Bookmark size={18} />
+              <span>Question Bank</span>
+            </button>
+            <button
               className={`nav-item ${currentTab === 'teacher-papers' ? 'active' : ''}`}
               onClick={() => onSelectTab('teacher-papers')}
               style={{ width: '100%', border: 'none', background: 'none', textAlign: 'left' }}

@@ -1,0 +1,63 @@
+subject: "Mathematics"
+code: "MTH"
+version: "1.0.0"
+boards: ["ICSE", "ISC", "JEE"]
+classes: [9, 10, 11, 12]
+
+question_types:
+  - id: "MCQ"
+    label: "Multiple Choice Question"
+    default_marks: 1
+    options_count: 4
+  - id: "NUMERICAL"
+    label: "Numerical Problem"
+    default_marks: 3
+    tolerance: 0.01
+  - id: "STEP_BY_STEP"
+    label: "Step-by-Step Derivation / Problem"
+    default_marks: 4
+  - id: "PROOF"
+    label: "Mathematical Proof / Identity"
+    default_marks: 4
+
+verification_rules:
+  engine: "sympy"
+  symbolic_check: true
+  numeric_tolerance: 0.01
+  auto_simplify: true
+
+chapters:
+  - name: "Calculus"
+    code: "CAL"
+    topics:
+      - name: "Definite Integrals"
+        code: "DEF"
+      - name: "Indefinite Integrals"
+        code: "IND"
+      - name: "Continuity and Differentiability"
+        code: "CON"
+      - name: "Application of Derivatives"
+        code: "AOD"
+  - name: "Algebra"
+    code: "ALG"
+    topics:
+      - name: "Matrices and Determinants"
+        code: "MAT"
+      - name: "Complex Numbers"
+        code: "CPX"
+      - name: "Quadratic Equations"
+        code: "QAD"
+  - name: "Trigonometry"
+    code: "TRG"
+    topics:
+      - name: "Trigonometric Identities"
+        code: "IDE"
+      - name: "Inverse Trigonometric Functions"
+        code: "ITF"
+  - name: "Coordinate Geometry"
+    code: "GEO"
+    topics:
+      - name: "Conic Sections"
+        code: "CON"
+      - name: "Straight Lines"
+        code: "STR"

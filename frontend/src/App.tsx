@@ -7,14 +7,13 @@ import { InchargeDashboard } from './views/InchargeDashboard';
 import { TeacherDashboard } from './views/TeacherDashboard';
 import { StudentDashboard } from './views/StudentDashboard';
 import { LibraryView } from './views/LibraryView';
+import { QuestionStudioView } from './views/QuestionStudioView';
+import { QuestionBankView } from './views/QuestionBankView';
 import {
-  QuestionStudioView,
   PapersView,
   TestsView,
   AnalyticsView,
-  StudentPracticeView,
   StudentAssistantView,
-  BookmarksView,
 } from './views/PlaceholderViews';
 
 const AppContent: React.FC = () => {
@@ -75,6 +74,8 @@ const AppContent: React.FC = () => {
         return <LibraryView />;
       case 'teacher-studio':
         return <QuestionStudioView />;
+      case 'teacher-bank':
+        return <QuestionBankView currentUser={user} />;
       case 'teacher-papers':
         return <PapersView />;
       case 'teacher-tests':
@@ -86,11 +87,11 @@ const AppContent: React.FC = () => {
       case 'student-dashboard':
         return <StudentDashboard />;
       case 'student-practice':
-        return <StudentPracticeView />;
+        return <QuestionBankView currentUser={user} />;
       case 'student-assistant':
         return <StudentAssistantView />;
       case 'student-bookmarks':
-        return <BookmarksView />;
+        return <QuestionBankView currentUser={user} />;
 
       default:
         if (user.role === 'STUDENT') return <StudentDashboard />;

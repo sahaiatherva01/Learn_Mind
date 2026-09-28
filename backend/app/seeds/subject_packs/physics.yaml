@@ -1,0 +1,67 @@
+subject: "Physics"
+code: "PHY"
+version: "1.0.0"
+boards: ["ICSE", "ISC", "JEE", "NEET"]
+classes: [9, 10, 11, 12]
+
+question_types:
+  - id: "MCQ"
+    label: "Multiple Choice Question"
+    default_marks: 1
+    options_count: 4
+  - id: "NUMERICAL"
+    label: "Numerical Problem"
+    default_marks: 3
+    tolerance: 0.02
+  - id: "CONCEPTUAL"
+    label: "Conceptual & Reasoning"
+    default_marks: 2
+  - id: "DERIVATION"
+    label: "Formula Derivation"
+    default_marks: 5
+
+verification_rules:
+  engine: "numeric_and_units"
+  numeric_tolerance: 0.02
+  unit_matching: true
+  constants:
+    g: 9.8
+    c: 3.0e8
+    e: 1.6e-19
+    h: 6.626e-34
+
+chapters:
+  - name: "Electrostatics & Magnetism"
+    code: "ELM"
+    topics:
+      - name: "Coulomb's Law and Electric Field"
+        code: "COU"
+      - name: "Electric Potential and Capacitance"
+        code: "CAP"
+      - name: "Current Electricity"
+        code: "CUR"
+      - name: "Magnetic Effects of Current"
+        code: "MAG"
+  - name: "Optics"
+    code: "OPT"
+    topics:
+      - name: "Ray Optics and Optical Instruments"
+        code: "RAY"
+      - name: "Wave Optics and Interference"
+        code: "WAV"
+  - name: "Mechanics"
+    code: "MEC"
+    topics:
+      - name: "Laws of Motion"
+        code: "NLM"
+      - name: "Work Energy and Power"
+        code: "WEP"
+      - name: "Rotational Motion"
+        code: "ROT"
+  - name: "Modern Physics"
+    code: "MOD"
+    topics:
+      - name: "Dual Nature of Radiation"
+        code: "DNR"
+      - name: "Nuclear Physics"
+        code: "NUC"

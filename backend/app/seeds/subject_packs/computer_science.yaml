@@ -1,0 +1,65 @@
+subject: "Computer Science"
+code: "CSC"
+version: "1.0.0"
+boards: ["ICSE", "ISC"]
+classes: [9, 10, 11, 12]
+
+question_types:
+  - id: "CODE_OUTPUT"
+    label: "Predict Code Output"
+    default_marks: 2
+  - id: "TRACE_TABLE"
+    label: "Variable Iteration Trace Table"
+    default_marks: 3
+  - id: "MCQ"
+    label: "Multiple Choice Question"
+    default_marks: 1
+    options_count: 4
+  - id: "ERROR_FINDING"
+    label: "Identify Syntax / Logical Errors"
+    default_marks: 2
+  - id: "ALGORITHM"
+    label: "Write Function / Algorithm"
+    default_marks: 5
+
+verification_rules:
+  engine: "code_sandbox"
+  sandbox_languages: ["python", "java"]
+  timeout_seconds: 2
+  strip_whitespace: true
+
+chapters:
+  - name: "Java Programming & OOP"
+    code: "JVA"
+    topics:
+      - name: "Methods, Overloading and Recursion"
+        code: "REC"
+      - name: "Array and String Operations"
+        code: "ARR"
+      - name: "Classes, Objects and Encapsulation"
+        code: "OOP"
+      - name: "Inheritance and Polymorphism"
+        code: "INH"
+  - name: "Data Structures"
+    code: "DST"
+    topics:
+      - name: "Stacks and Queues"
+        code: "STK"
+      - name: "Linked Lists and Binary Trees"
+        code: "LNK"
+  - name: "Boolean Algebra & Logic"
+    code: "LOG"
+    topics:
+      - name: "Propositional Logic and Truth Tables"
+        code: "TRU"
+      - name: "Karnaugh Maps (K-Map)"
+        code: "KMP"
+      - name: "Logic Gates and Circuit Simplification"
+        code: "GAT"
+  - name: "Python Programming"
+    code: "PYT"
+    topics:
+      - name: "Data Structures (List, Dict, Tuple, Set)"
+        code: "STR"
+      - name: "Functions, File Handling and Modules"
+        code: "FIL"

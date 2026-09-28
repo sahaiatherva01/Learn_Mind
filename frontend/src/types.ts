@@ -85,3 +85,137 @@ export interface TeacherAssignment {
   subject_name?: string | null;
   created_at: string;
 }
+
+// --- Phase 2: Questions, Studio, Verification ---
+export type QuestionOrigin = 'SOURCE_COPY' | 'AI_SIMILAR' | 'AI_HIGHER' | 'TEACHER_AUTHORED';
+export type VerificationStatus = 'UNVERIFIED' | 'NEEDS_REVIEW' | 'APPROVED' | 'REJECTED';
+
+export interface VerificationRun {
+  run_no: number;
+  solver_model: string;
+  answer: string;
+  steps?: string | null;
+  agree: boolean;
+  diff_notes?: string | null;
+}
+
+export interface QuestionVersionData {
+  id: string;
+  version: number;
+  body: string;
+  options?: string[] | null;
+  answer: string;
+  solution?: string | null;
+  verification_status: VerificationStatus;
+  meta: {
+    subject?: string;
+    class_level?: number;
+    chapter?: string;
+    topic?: string;
+    marks?: number;
+    difficulty?: string;
+    question_type?: string;
+    [key: string]: any;
+  };
+  verification_runs: VerificationRun[];
+}
+
+export interface QuestionItem {
+  id: string;
+  short_id: string;
+  long_id: string;
+  origin: QuestionOrigin;
+  source_ref?: string | null;
+  owner_teacher_id: string;
+  current_version: number;
+  all_versions?: Array<{
+    version: number;
+    verification_status: VerificationStatus;
+    created_at: string;
+  }>;
+  version_data: QuestionVersionData;
+  created_at: string;
+}
+
+export interface SubjectQuestionType {
+  id: string;
+  label: string;
+  default_marks: number;
+  tolerance?: number;
+  options_count?: number;
+}
+
+export interface SubjectTopic {
+  name: string;
+  code: string;
+}
+
+export interface SubjectChapter {
+  name: string;
+  code: string;
+  topics: SubjectTopic[];
+}
+
+export interface SubjectPack {
+  subject: string;
+  code: string;
+  version: string;
+  boards: string[];
+  classes: number[];
+  question_types: SubjectQuestionType[];
+  chapters: SubjectChapter[];
+}
+
+export interface StudioGenerateResponse {
+  subject: string;
+  class_level: number;
+  chapter: string;
+  topic: string;
+  question_type: string;
+  difficulty: string;
+  marks: number;
+  mode: string;
+  source_ref?: string | null;
+  draft: {
+    body: string;
+    options?: string[] | null;
+    answer: string;
+    solution?: string | null;
+  };
+  verification: {
+    agree: boolean;
+    status: VerificationStatus;
+    diff_notes?: string | null;
+    solver1: {
+      model: string;
+      answer: string;
+      steps: string;
+    };
+    solver2: {
+      model: string;
+      answer: string;
+      steps: string;
+      tool_meta?: any;
+    };
+  };
+}
+
+export interface InterpretSetResponse {
+  interpretation_summary: string;
+  detected_subject: string;
+  detected_class: number;
+  questions_count: number;
+  questions: Array<{
+    body: string;
+    options?: string[] | null;
+    answer: string;
+    solution?: string | null;
+    question_type: string;
+    chapter?: string | null;
+    topic?: string | null;
+    difficulty: string;
+    marks: number;
+    [key: string]: any;
+  }>;
+}
+

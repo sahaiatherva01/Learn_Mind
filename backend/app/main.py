@@ -8,8 +8,10 @@ from app.api.v1.admin import router as admin_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.incharge import router as incharge_router
 from app.api.v1.library import router as library_router
+from app.api.v1.questions import router as questions_router
 from app.api.v1.sections import router as sections_router
 from app.api.v1.student import router as student_router
+from app.api.v1.studio import router as studio_router
 from app.api.v1.subjects import router as subjects_router
 from app.api.v1.teacher import router as teacher_router
 from app.core.config import settings
@@ -60,6 +62,8 @@ app.include_router(student_router, prefix=settings.API_V1_STR)
 app.include_router(sections_router, prefix=settings.API_V1_STR)
 app.include_router(subjects_router, prefix=settings.API_V1_STR)
 app.include_router(library_router, prefix=settings.API_V1_STR)
+app.include_router(questions_router, prefix=f"{settings.API_V1_STR}/questions", tags=["Questions"])
+app.include_router(studio_router, prefix=f"{settings.API_V1_STR}/studio", tags=["Question Studio"])
 
 
 @app.get("/health", tags=["System"])

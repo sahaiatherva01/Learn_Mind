@@ -167,7 +167,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onNavigateTa
             className="btn btn-secondary btn-sm"
             style={{ width: '100%', justifyContent: 'space-between' }}
           >
-            <span>Open Studio (Phase 2)</span>
+            <span>Open Question Studio</span>
             <ArrowRight size={15} />
           </button>
         </div>
